@@ -88,15 +88,6 @@ public class EventManagerTest {
 			
 		}
 		
-		Long stats = eventManager.getStatsFired(event);
-		
-		assertNotNull( stats );
-		
-		if ( null != stats ) {
-			
-			assertEquals( 1L, stats.longValue() );
-			
-		}
 		
 	}
 	@Test
@@ -128,11 +119,6 @@ public class EventManagerTest {
 			fail( e.getMessage() );
 		}
 		
-
-		assertEquals( 1, (long) eventManager.getStatsFired( "event.roar" ));
-		assertEquals( 3, (long) eventManager.getStatsFired( "event.bark" ));
-		
-		System.out.println( eventManager.getStatsFired() );
 		
 	}
 	

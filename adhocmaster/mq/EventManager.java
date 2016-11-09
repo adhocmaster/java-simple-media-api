@@ -20,12 +20,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.transaction.Synchronization;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class EventManager {
 
-	private final static Logger logger = Logger.getLogger( EventManager.class );
-	private static final long consumerTimeout = 2000L; // 1 second
+	private final static Logger logger = LoggerFactory.getLogger( EventManager.class );
+	private static final long consumerTimeout = 5000L; // 1 second
 	
 	private ConcurrentHashMap< String, Set<MessageListener> > eventMap; // will be automatically initialized to null as this is a object field
 	private ConcurrentHashMap< String, Thread > consumerMap;
@@ -79,15 +80,15 @@ public class EventManager {
 
 		if( null == eventMap.get( event ) ) {
 			
-			System.out.println( event + " waiting for listCreationLock" );
+			logger.debug( event + " waiting for listCreationLock" );
 			
 			synchronized ( listCreationLock ) {
 				
-				System.out.println( event + " got the lock ");
+			    logger.debug( event + " got the lock ");
 				
 				if ( null == eventMap.get( event ) ) {
 					
-					System.out.println( event + " is null in eventMap after getting lock");
+				    logger.debug( event + " is null in eventMap after getting lock");
 										
 					// we are creating synchronized set because it can be accessed by multiple threads for the same event
 					Set<MessageListener> listeners = Collections.synchronizedSet( new HashSet<MessageListener>() );
@@ -98,16 +99,15 @@ public class EventManager {
 					
 				} else {
 
-					System.out.println( event + " is NOT null in eventMap after getting lock");
+				    logger.debug( event + " is NOT null in eventMap after getting lock");
 					
 				}
 				
 			}
 			
 		} else {
-
 			
-			System.out.println( event + " did not wait for listCreationLock as it exists" );
+		    logger.debug( event + " did not wait for listCreationLock as it exists" );
 			
 		}
 	}
@@ -215,7 +215,8 @@ public class EventManager {
 						} catch (Exception e1) {
 							// It may not be an error
 							//e1.printStackTrace();
-							logger.debug( e1.getMessage(), e1);
+							//logger.debug( e1.getMessage(), e1);
+						    logger.debug( e1.getMessage() );
 						}
 						
 						try { 
@@ -234,7 +235,7 @@ public class EventManager {
 			});
 			
 			consumerMap.put( event,  thread );
-			System.out.println( event + ": starting consumer thread " + thread.getName() );
+			logger.debug( event + ": starting consumer thread " + thread.getName() );
 			thread.setDaemon( true );
 			thread.start();
 			
@@ -245,6 +246,8 @@ public class EventManager {
 	/**
 	 * Called when a event is fired through MQ. This function needs to be non-blocking
 	 */
+	
+	
 	private void eventFired( final String event, final String message ) {
 		
 		// process in a separate thread
@@ -281,7 +284,7 @@ public class EventManager {
 				
 				if( null == listeners || listeners.isEmpty() ) {
 					
-					System.out.println( event + ": No listener");
+				    logger.debug( event + ": No listener");
 					return;
 					
 				}
@@ -304,10 +307,11 @@ public class EventManager {
 			}
 		});
 
-		System.out.println( event + ": starting event fire " + thread.getName() );
+		logger.debug( event + ": starting event fire " + thread.getName() );
 		thread.start();
 		
 	}
+	
 
 	public ConcurrentHashMap<String, Long> getStatsFired() {
 		return statsFired;
@@ -377,7 +381,7 @@ public class EventManager {
 		
 		if( isPaused(event) ) {
 			
-			System.out.println( event + " is paused.");
+		    logger.debug( event + " is paused.");
 
 			return;
 			

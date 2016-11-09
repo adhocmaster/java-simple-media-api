@@ -16,11 +16,7 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
-import org.apache.activemq.store.PersistenceAdapter;
-import org.apache.activemq.store.kahadb.KahaDBPersistenceAdapter;
 import org.apache.log4j.Logger;
-
-import organization.Organization;
 
 public class MQBroker implements ExceptionListener {
 
